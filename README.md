@@ -1,5 +1,5 @@
 # README
-the full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model wich is developed by the First Institute of Oceanography, Ministry of Natural Resources. It consists of atmoshpher component (WRF)，
+The full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model wich is developed by the First Institute of Oceanography, Ministry of Natural Resources. It consists of atmoshpher component (WRF)，
 ocean surface wave component (MASNUM) and ocean circulation component (POM&ROMS). All the components are coupled together through C-Coupler. 
 
 The FIO-AOW has been used to study the impacts of ocean surface waves on tropical cyclone studies.Currently, the following wave related physical processes are considered in FIO-AOW, including:
