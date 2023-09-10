@@ -1,0 +1,222 @@
+#!/bin/bash
+##################################################################################
+#  Copyright (c) 2013, Tsinghua University. 
+#  This code is initially finished by Dr. Ruizhe Li on 2013/3/21. 
+#  If you have any problem, please contact:
+#  Dr. Ruizhe Li via liruizhe@gmail.com,
+#  or Dr. Li Liu via liuli-cess@tsinghua.edu.cn
+##################################################################################
+
+function trim
+{
+    echo "$1" | grep -o "[^ ]\+\( \+[^ ]\+\)*"
+}
+
+function usage
+{
+    echo "usage runcase [-parallel_submit] [-ensemble_member num1,num2,...] [-ensemble_member num1-num2]"
+}
+
+#get the path of this script
+export PATH=$PATH:$SCRIPTSROOT/utils/
+source "${CASEROOT}/config/common/run.conf"
+source "${CASEROOT}/config/common/env"
+source "$SCRIPTSROOT/utils/check_ensemble"
+
+TEMP=$(getopt -a -o h -l parallel_submit,ensemble_member:,help -n runcase -- "$@")
+if [ $? -ne 0 ]; then
+    usage
+    exit 1
+fi
+eval set --$TEMP
+
+parallel_submit="no"
+
+while true; do
+    case "$1" in
+        --parallel_submit) parallel_submit="yes"; shift 1;;
+        --ensemble_member) ensemble_member="$2"; shift 2;;
+        --) shift 1; break;;
+        -h | --help)
+        usage
+        exit 0;;
+        *) report_logs "ERROR" "Internal error of the C-Coupler platform is detected. Please contact the C-Coupler team!"; exit 1 ;;
+    esac
+done
+
+while read line; do
+    key=`trim "${line%\=*}"`
+    value=`trim "${line#$key*=}"`
+    case "$key" in
+        model_list)
+        models_conf="$value"
+        ;;
+        submit_script)
+        submit_shell="$value"
+        ;;
+        machine_env)
+        machine_env="$value"
+        ;;
+        ensemble_num)
+        ensemble_num="$value"
+        ;;
+        *)
+        ;;
+    esac
+done < "${CASEROOT}/config/common/run.conf"
+
+declare -a models
+declare -a models_type
+declare -a models_exe
+declare -a models_num_total_proc
+declare -a models_num_thread
+
+i=0
+
+while read models[i]
+do
+    read tmp
+    while read line
+    do
+        if [ "$line" = "}" ]
+        then
+            break
+        fi
+        key=`trim "${line%\=*}"`
+        value=`trim "${line#$key*=}"`
+        case "$key" in
+            type)
+            models_type[i]="$value"
+            ;;
+            exefile)
+            models_exe[i]="$value"
+            ;;
+            num_total_proc)
+            models_num_total_proc[i]="$value"
+            ;;
+            num_thread)
+            models_num_thread[i]="$value"
+            ;;
+            *)
+            ;;
+        esac
+    done
+    let i=i+1
+done < "$models_conf"
+
+num_models=$i
+
+if [ ! -f "$machine_env" ]; then
+    report_logs "ERROR" "The environment variable file \"$machine_env\" that is about the machine \"$MACH\" does not exist. \nPlease check."
+    exit 1
+fi
+
+if [ ! -f "$submit_shell" ]; then
+    report_logs "ERROR" "The environment variable file \"$submit_shell\" that is about how to submit a job to the machine \"$MACH\" does not exist.\nPlease check."
+    exit 1
+fi
+
+if [ "$ensemble_member" != "" -a "$ensemble_num" = "0" ]; then
+    report_logs "ERROR"  "This simulation is not an ensemble simulation: \"-ensemble_member\" should not be specified when running then simulation"
+    exit 1
+fi
+
+if [[ "$ensemble_member" =~ ^[0-9][0-9]*-[0-9][0-9]*$ ]]; then
+    continuous_ensemble="yes"
+    IFS_BAK=$IFS
+    IFS=-
+    ensemble_list=($ensemble_member)
+    IFS=$IFS_BAK
+    ensemble_begin="${ensemble_list[0]}"
+    ensemble_end="${ensemble_list[1]}"
+    
+    if [ $ensemble_begin -gt $ensemble_end ]; then
+        report_logs "ERROR" "The first ensemble member number must be smaller than the second ensemble member number."
+        exit 1
+    elif [[ $ensemble_begin < 1 || $ensemble_end > $ensemble_num ]]; then
+        report_logs "ERROR" "The specified ensemble member numbers are out of range. Please check (the number of ensemble members is specified in \"run/config/case.conf\")."
+        exit 1
+    fi
+elif [ "$ensemble_member" != "" ]; then
+    incontinuous_ensemble="yes"
+    IFS_BAK=$IFS
+    IFS=,
+    ensemble_list=($ensemble_member)
+    IFS=$IFS_BAK
+
+    for (( i = 0; i < ${#ensemble_list[*]}; i++ )); do
+        if [[ ! "${ensemble_list[i]}" =~ ^[0-9][0-9]*$ ]]; then
+            report_logs "ERROR" "The ensemble member numbers must be positive."
+            exit 1
+        elif [[ ${ensemble_list[i]} < 1 || ${ensemble_list[i]} > $ensemble_num ]]; then
+             report_logs "ERROR" "Some specified ensemble member numbers are out of range. Please check (the number of ensemble members is specified in \"run/config/case.conf\")."
+            exit 1
+        fi
+    done
+
+fi
+
+#submit
+if [ $ensemble_num -lt 1 ]; then
+    echo "$ensemble_num"
+    param="$submit_shell"
+    for (( i = 0; i < num_models; i++ ))
+    do
+        param="$param \"${models_exe[i]}\" \"${CASEROOT}/run/all/${models[i]}.nml\" ${models_num_total_proc[i]} ${models_num_thread[i]}"
+    done
+
+    source "$machine_env"
+    export log_dir="${CASEROOT}/job_logs"
+    export CASENAME=${CASEROOT##*/}
+    export configuration_time=${configuration_time}
+    mkdir -p $log_dir
+    eval $param
+else
+    param="$submit_shell"
+    if ! check_ensemble_run_directory "$ensemble_num"; then
+        report_logs "ERROR" "The directory run already exists and the ensemble member number under the directory run is inconsistent with the variable \"ensemble_number\" in the \"config/common/case.conf\" (when \"ensemble_number\" is not set, the ensemble member number is 0)\nPlease verify: modify \"config/common/case.conf\", or remove the directory run, or duplicate the current simulation to a new simulation, and then reconfigure and recompile the simulation."
+        exit 1
+    fi
+
+    fix=$(echo -n "${ensemble_num}" | wc | awk '{print $3}')
+    for (( ensemble_index=1; ensemble_index<=ensemble_num; ensemble_index++ ))
+    do
+        if [ "$continuous_ensemble" = "yes" ]; then
+            if [[ $ensemble_index < $ensemble_begin || $ensemble_index > $ensemble_end ]]; then
+        continue
+    fi
+fi
+
+if [ "$incontinuous_ensemble" = "yes" ]; then
+    find="no"
+    for (( i = 0; i < ${#ensemble_list[*]}; i++ )); do
+        if [ $ensemble_index -eq ${ensemble_list[i]} ]; then
+            find="yes"
+            break
+        fi
+    done
+    if [ "$find" = "no" ]; then
+        continue
+    fi
+fi
+        index=$(printf "%0${fix}d" "$ensemble_index")
+        RUNROOT="${CASEROOT}/run/ensemble_${index}"
+        param="$submit_shell"
+        for (( i = 0; i < num_models; i++ ))
+        do
+            param="$param \"${RUNROOT}/${models_type[i]}/${models[i]}/exe/${models[i]}\" \"${RUNROOT}/all/${models[i]}.nml\" ${models_num_total_proc[i]} ${models_num_thread[i]}"
+        done
+
+        source "$machine_env"
+        export log_dir="${CASEROOT}/job_logs/ensemble_${index}"
+        export CASENAME=${CASEROOT##*/}
+        export CASENAME="${CASENAME}_ensemble_${index}"
+        export configuration_time="${configuration_time}"
+        mkdir -p $log_dir
+        if [ "$parallel_submit" = "yes" ]; then
+            eval "$param &"
+        else
+            eval "$param"
+        fi
+    done
+fi

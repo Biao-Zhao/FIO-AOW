@@ -1,0 +1,5 @@
+COMPSET=CESM1_2_1-sole
+CASEROOT="/home/liuli/git_checkout/model_experiments/CESM_experiments/CESM2.6_test_temp"
+MACH=generic_linux
+CESM_RES=1.9x2.5_gx1v6
+CESM_COMPSET=B_RCP2.6_CN
