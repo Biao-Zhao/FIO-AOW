@@ -1,5 +1,5 @@
 # README
-The full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model which is developed by the First Institute of Oceanography, Ministry of Natural Resources. It consists of atmoshpher component [WRF](https://github.com/wrf-model/WRF)，ocean surface wave component MASNUM and ocean circulation component [POM](http://www.ccpo.odu.edu/POMWEB/)&[ROMS](https://github.com/kshedstrom/roms). All the components are coupled together through [C-Coupler](https://github.com/C-Coupler-Group/c-coupler-lib). It should be noted that all the components of FIO-AOW are open source except MASNUM. In FIO-AOW, the POM and MASNUM were speeded up through MPI technique by Wang et al. (2010).
+The full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model which is developed at the First Institute of Oceanography, Ministry of Natural Resources. It consists of atmoshpher component [WRF](https://github.com/wrf-model/WRF)，ocean surface wave component MASNUM and ocean circulation component [POM](http://www.ccpo.odu.edu/POMWEB/)&[ROMS](https://github.com/kshedstrom/roms). All the components are coupled together through [C-Coupler](https://github.com/C-Coupler-Group/c-coupler-lib). It should be noted that all the components of FIO-AOW are open source except MASNUM. In FIO-AOW, the POM and MASNUM were speeded up through MPI technique by Dr Guansuo Wang (wang et al., 2010).
 
 
 
@@ -10,7 +10,7 @@ FIO-AOW has been used to study the impacts of ocean surface waves on tropical cy
 4. Relative wind speed
 5. Rain-induced surface cooling
 
-For more details about FIO-AOW, people could refer to the papers below
+For more details about the FIO-AOW, people could refer to the papers listed below
 1. **Zhao, B.**, Wang, G., Zhang, J. A., Liu, L., Liu, J., Xu, J., et al. (2022). The effects of ocean surface waves on tropical cyclone intensity: Numerical simulations using a regional atmosphere-ocean-wave coupled model. Journal of Geophysical Research: Oceans, 127, e2022JC019015, https://doi.org/10.1029/2022JC019015
    
 2. **Zhao, B.**, Qiao, F., Cavaleri, L., Wang, G., Bertotti, L., and Liu, L. (2017), Sensitivity of typhoon modeling to surface waves and rainfall, J. Geophys. Res. Oceans, 122, 1702–1723, https://doi:10.1002/2016JC012262.
