@@ -11,12 +11,12 @@ FIO-AOW has been used to study the impacts of ocean surface waves on tropical cy
 5. Rain-induced surface cooling
 
 For more details about FIO-AOW, people could refer to the papers below
-1. **Zhao, B.**, Wang, G., Zhang, J. A., Liu, L., Liu, J., Xu, J., et al. (2022). The effects of ocean surface waves on tropical cyclone intensity: Numerical simulations using a regional atmosphere-ocean-wave coupled model. Journal of Geophysical Research: Oceans, 127, e2022JC019015, https://doi.org/10.1029/2022JC019015
+1. Zhao, B., Wang, G., Zhang, J. A., Liu, L., Liu, J., Xu, J., et al. (2022). The effects of ocean surface waves on tropical cyclone intensity: Numerical simulations using a regional atmosphere-ocean-wave coupled model. Journal of Geophysical Research: Oceans, 127, e2022JC019015, https://doi.org/10.1029/2022JC019015
    
-2. **Zhao, B.**, Qiao, F., Cavaleri, L., Wang, G., Bertotti, L., and Liu, L. (2017), Sensitivity of typhoon modeling to surface waves and rainfall, J. Geophys. Res. Oceans, 122, 1702–1723, https://doi:10.1002/2016JC012262.
+2. Zhao, B., Qiao, F., Cavaleri, L., Wang, G., Bertotti, L., and Liu, L. (2017), Sensitivity of typhoon modeling to surface waves and rainfall, J. Geophys. Res. Oceans, 122, 1702–1723, https://doi:10.1002/2016JC012262.
    
-3. Wang, G., **Zhao, B.**, Qiao, F. et al. (2018). Rapid intensification of Super Typhoon Haiyan: the important role of a warm-core ocean eddy. Ocean Dynamics 68, 1649–1661, https://doi.org/10.1007/s10236-018-1217-x
+3. Wang, G., Zhao, B., Qiao, F. et al. (2018). Rapid intensification of Super Typhoon Haiyan: the important role of a warm-core ocean eddy. Ocean Dynamics 68, 1649–1661, https://doi.org/10.1007/s10236-018-1217-x
    
-4.	Sun, C., Liu, L., Li, R., Yu, X., Yu, H., **Zhao, B.**, Wang, G., Liu, J., Qiao, F., and Wang, B. (2021). Developing a common, flexible and efficient framework for weakly coupled ensemble data assimilation based on C-Coupler2.0, Geosci. Model Dev., 14, 2635-2657, https://doi.org/10.5194/gmd-14-2635-2021.
+4.	Sun, C., Liu, L., Li, R., Yu, X., Yu, H., Zhao, B., Wang, G., Liu, J., Qiao, F., and Wang, B. (2021). Developing a common, flexible and efficient framework for weakly coupled ensemble data assimilation based on C-Coupler2.0, Geosci. Model Dev., 14, 2635-2657, https://doi.org/10.5194/gmd-14-2635-2021.
    
 5.	Wang, G., Qiao, F. & Xia, C. (2010). Parallelization of a coupled wave-circulation model and its application. Ocean Dynamics 60, 331–339, https://doi.org/10.1007/s10236-010-0274-6
