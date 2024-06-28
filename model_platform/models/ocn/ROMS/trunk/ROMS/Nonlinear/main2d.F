@@ -273,20 +273,7 @@
               END IF
             END DO
 # endif
-# ifdef C_COUPLER
-!-----------------------------------------------------------------------
-!                     zhaobiao, c-coupler2
-!  Couple ocean to atmosphere model to  get air/sea fluxes.
-!-----------------------------------------------------------------------
-!
-            DO ig=1,GridsInLayer(nl)
-              ng=GridNumber(ig,nl)
-                DO tile=last_tile(ng),first_tile(ng),-1
-                   CALL run_coupling (ng, tile)     !zhaobiao,c-coupler2
-                END DO
-!$OMP BARRIER
-            END DO
-# endif
+
 
 # ifdef ADJUST_BOUNDARY
 !
