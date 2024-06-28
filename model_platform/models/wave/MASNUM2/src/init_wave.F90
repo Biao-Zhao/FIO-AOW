@@ -1,0 +1,74 @@
+!!
+ SUBROUTINE SETWAVE
+ USE data_kind_mod_wave
+ USE CONST_WAVE, ONLY:JLP1,KLDP1,DELTTH,PWK,WKMIN,KLD,G,ZPI,P,KL,PI
+ USE ALL_VAR_WAVE,ONLY:WF,CCG,DWF,THET,WKH,WK,D,GROLIM,DWK
+ USE CONTROL_WAVE,ONLY:ISLON,IELON,ISLAT,IELAT,DELTTM,output
+ IMPLICIT NONE
+
+ INTEGER I,J,K
+ REAL(kind_r4) :: WH,DI,DELTTS,WKK,DK,TANHDK,WFK,WSK,CGRO
+ CHARACTER*200 out_theta,out_wk
+ 
+ ALLOCATE(WF(KLDP1,ISLON:IELON,ISLAT:IELAT),   &
+          CCG(KLDP1,ISLON:IELON,ISLAT:IELAT),  &
+          DWF(KLDP1,ISLON:IELON,ISLAT:IELAT))
+!
+! DELTTH=ZPI/FLOAT(JL) 
+!
+ out_theta=trim(output)//'theta.dat'
+ out_wk=trim(output)//'wavek.dat'
+! OPEN(111,FILE=out_theta)
+! OPEN(112,FILE=out_wk) 
+ DO J=1,JLP1       
+ THET(J)=(J-1)*DELTTH
+! WRITE(111,'(i,x,f10.4)') J,THET(J)
+ END DO
+!CLOSE(111)
+!
+ WH=SQRT((1./PWK)**7)
+ WKH(1)=1.
+ DO K=1,KLDP1
+    WK(K)=WKMIN*(PWK**(K-1)) !DISCRETION OF WAVE NUMBER
+!    WRITE(112,'(i,x,f10.4)') K,WK(K)
+    IF(K<=KLD)DWK(K)=(PWK-1.)*(WK(K)**2)*DELTTH/2   
+    IF (K>=2) WKH(K)=WKH(K-1)*WH
+ END DO
+!CLOSE(112)
+
+ DO J=ISLAT,IELAT
+ DO I=ISLON,IELON
+    DI=D(I,J)
+    DO K=1,KLDP1
+    WKK=WK(K)
+    DK=DI*WKK    
+    TANHDK=1.
+    IF (DK.LT.4.) TANHDK=TANH(DK)
+     WFK=SQRT(G*WKK*TANHDK)/ZPI     
+     WSK=WFK*ZPI                   
+     WF(K,I,J)=WFK 
+    IF (DK.GT.4.) THEN
+       CCG(K,I,J)=0.5*WSK/WKK
+    ELSE
+     IF (DK.LT.0.14) THEN
+        CCG(K,I,J)=SQRT(G*DI)
+     ELSE
+        CCG(K,I,J)=0.5*WSK*(1.+2.*DK/SINH(2.*DK))/WKK
+     ENDIF
+    ENDIF
+    END DO
+ END DO
+ END DO 
+!    
+ DO K=1,KLD
+ DWF(K,:,:)=(WF(K+1,:,:)-WF(K,:,:))*DELTTH/2
+ END DO       
+!
+ DELTTS=DELTTM*60.
+ CGRO=0.0000091*P*DELTTS
+ DO K=1,KL
+ GROLIM(K)=CGRO/WK(K)**4
+ END DO
+!
+ RETURN
+ END

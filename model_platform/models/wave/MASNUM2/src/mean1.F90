@@ -1,0 +1,143 @@
+ SUBROUTINE MEAN1
+ USE data_kind_mod_wave
+ USE CONTROL_WAVE, ONLY : ISLAT,IELAT,ISLON,IELON
+ USE CONST_WAVE, ONLY : G,PI,ZERO,KL,ZPI,JL,TZTZ,DELTTH
+ USE ALL_VAR_WAVE, ONLY : H1_3,NSP,DWK,DWF,WF,WK,WKH,EE,THET,CCG,   &
+                     TPF,APE,D,AET,UORBITAL,VORBITAL,USTOKES,VSTOKES !added by zhaobiao
+ IMPLICIT NONE
+ INTEGER(kind_in) :: IA,IC,IAHM,ICHM,K,K1,I,I1,J
+ REAL(kind_r4) :: HMAX,PID180,DWKK,DWFK,WFK,WFK1
+ REAL(kind_r4) :: WSK,WSK1,WKK,WKK1,EEF0,EEKJ,EEKJ1,EEKJTH
+ REAL(kind_r4) :: SINTH,COSTH,AETT,CHBH,THS                             !added by zhaobiao
+!REAL(kind_r4) :: THMAX,AKMAX,EEMAX,EFORMAX  defined but never used
+ REAL(kind_r4),DIMENSION(ISLON:IELON,ISLAT:IELAT) :: HB,HBB,    &
+               AE,ASI,AWF,AWK,AETS,AETC                           ! added by zhaobiao 
+!
+ HMAX=0.
+ IAHM=1
+ ICHM=1
+ PID180=PI/180.
+
+ AE=ZERO;ASI=ZERO;AWF=ZERO;AWK=ZERO
+!ARK=ZERO
+ APE=ZERO;AET=ZERO;HB=ZERO
+ HBB=ZERO;H1_3=ZERO
+ UORBITAL=ZERO;VORBITAL=ZERO
+ USTOKES=ZERO;VSTOKES=ZERO            !added by zhaobiao
+ AETS=ZERO;AETC=ZERO
+!
+ DO IC=ISLAT,IELAT ! 100
+ DO IA=ISLON,IELON ! 100
+    !AETS=ZERO
+    !AETC=ZERO
+!   
+    IF(NSP(IA,IC)==0)CYCLE
+!   >>>>>>>>>>>>>>>>>>>>>>
+!   deleted by guanso. 2009/08/07
+!   THMAX=0.0
+!   AKMAX=0.0
+!   EEMAX=-999
+!   EFORMAX=-999
+!   >>>>>>>>>>>>>>>>>>>>>>
+    DO K=1,KL  ! 200
+       K1=K+1
+       I=K-KL+1
+       I1=I+1
+       DWKK=DWK(K)
+       DWFK=DWF(K,IA,IC)
+       WFK=WF(K,IA,IC)
+       WFK1=WF(K1,IA,IC)
+!      WFK=FR(K)
+!      WFK1=FR(K1)
+       WSK=ZPI*WFK
+       WSK1=ZPI*WFK1
+       WKK=WK(K)
+       WKK1=WK(K1)
+       EEF0=0.0
+       DO J=1,JL  ! 300
+          IF (K<KL) THEN
+             EEKJ =EE(K,J,IA,IC)
+             EEKJ1=EE(K1,J,IA,IC)
+          ELSE
+             EEKJ =EE(KL,J,IA,IC)*WKH(I)
+             EEKJ1=EE(KL,J,IA,IC)*WKH(I1)
+          ENDIF
+          EEKJTH=EEKJ*DELTTH
+          EEF0=EEF0+EEKJTH
+          SINTH=SIN(THET(J))
+          COSTH=COS(THET(J))
+          
+          AE(IA,IC)=AE(IA,IC)+(EEKJ+EEKJ1)*DWKK
+          ASI(IA,IC)=ASI(IA,IC)+(EEKJ/WFK**2+EEKJ1/WFK1**2)*DWKK
+          APE(IA,IC)=APE(IA,IC)+(EEKJ*WSK**2+EEKJ1*WSK1**2)*DWKK
+          AWF(IA,IC)=AWF(IA,IC)+(EEKJ*WFK+EEKJ1*WFK1)*DWKK
+          AWK(IA,IC)=AWK(IA,IC)+(EEKJ*WKK+EEKJ1*WKK1)*DWKK
+!         ARK(IA,IC)=ARK(IA,IC)+(EEKJ/SQRT(WKK)+EEKJ1/SQRT(WKK1))*DWKK
+          AETS(IA,IC)=AETS(IA,IC)+(EEKJ+EEKJ1)*WK(K)*SINTH*DWKK
+          AETC(IA,IC)=AETC(IA,IC)+(EEKJ+EEKJ1)*WK(K)*COSTH*DWKK
+          VSTOKES(IA,IC)=VSTOKES(IA,IC)+(EEKJ*WSK**3+EEKJ1*WSK1**3)*SINTH*(2.0/G)*DWKK !added by zhaobiao
+          USTOKES(IA,IC)=USTOKES(IA,IC)+(EEKJ*WSK**3+EEKJ1*WSK1**3)*COSTH*(2.0/G)*DWKK
+       END DO ! 300
+!      EF(K,IA,IC)=ZPI*WKK/CCG(K,IA,IC)*EEF0
+    END DO ! 200
+!   ^^^^^^^^^^^^^^^^^^^^^^^
+    APE(IA,IC)=TZTZ*ZPI/SQRT(APE(IA,IC)/AE(IA,IC))
+    TPF(IA,IC)=(ASI(IA,IC)/AE(IA,IC))*(AWF(IA,IC)/AE(IA,IC))
+!   
+!   TPF(IA,IC)=ASI(IA,IC)*AWF(IA,IC)/AE(IA,IC)**2
+!   IF(AETC.LT.0.000001)AETC=0.00001
+!   
+    AETT=ATAN2D(AETS(IA,IC),AETC(IA,IC))
+    IF (AETT<ZERO)AETT=360.+AETT
+    AET(IA,IC)=AETT
+    AWK(IA,IC)=AWK(IA,IC)/AE(IA,IC)
+    H1_3(IA,IC)=4.*SQRT(AE(IA,IC))
+!   ^^^^^^^^^^^^^^^^^^^^^^^
+!   HB(IA,IC)=ZPI/AWK(IA,IC)*0.12*
+!        &    TANH(D(IA,IC)*AWK(IA,IC))/1.6726
+!   HBB(IA,IC)=0.78125*D(IA,IC)/1.5864792
+!   ^^^^^^^^^^^^^^^^^^^^^^^
+    HB(IA,IC)=ZPI/AWK(IA,IC)*0.142*TANH(D(IA,IC)*AWK(IA,IC))
+    HBB(IA,IC)=0.78125*D(IA,IC)/1.6726
+    IF(HB(IA,IC)>HBB(IA,IC))HB(IA,IC)=HBB(IA,IC)
+!   
+    IF(H1_3(IA,IC)>HB(IA,IC))THEN
+      CHBH=(HB(IA,IC)/H1_3(IA,IC))**2
+      DO J=1,JL
+      DO K=1,KL
+      EE(K,J,IA,IC)=CHBH*EE(K,J,IA,IC)
+      END DO
+      END DO
+      H1_3(IA,IC)=HB(IA,IC)
+    ENDIF
+!
+!   IF(H1_3(IA,IC).GT.HMAX) THEN
+!   HMAX=H1_3(IA,IC)
+!   IAHM=IA
+!   ICHM=IC
+!   ENDIF
+!   
+!   IF(H1_3(IA,IC).GT.H1_3MAXT(IA,IC)) THEN
+!   H1_3MAXT(IA,IC)=H1_3(IA,IC)
+!   TAHMT(IA,IC)=APE(IA,IC)
+!   YHMT(IA,IC)=IYEAR
+!   MONHMT(IA,IC)=IMONTH
+!   DHMT(IA,IC)=IDAY
+!   HHMT(IA,IC)=IHOUR
+!   MHMT(IA,IC)=IMINUTE
+!   ENDIF
+!
+    THS=0.937*APE(IA,IC)/0.833
+    UORBITAL(IA,IC)=PI*H1_3(IA,IC)*COS(AET(IA,IC)*PI/180.0)/THS
+    VORBITAL(IA,IC)=PI*H1_3(IA,IC)*SIN(AET(IA,IC)*PI/180.0)/THS
+
+IF(ISNAN(UORBITAL(IA,IC))) UORBITAL(IA,IC)=0
+IF(ISNAN(VORBITAL(IA,IC))) VORBITAL(IA,IC)=0
+IF(ISNAN(USTOKES(IA,IC)))  USTOKES(IA,IC)=0
+IF(ISNAN(VSTOKES(IA,IC)))  VSTOKES(IA,IC)=0
+
+ END DO ! 100
+ END DO ! 100
+!
+ RETURN
+ END

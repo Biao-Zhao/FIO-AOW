@@ -1,0 +1,99 @@
+ SUBROUTINE BAROPG
+ USE ALL_VAR, ONLY : DRHOX,DRHOY,RHO,RMEAN,DT,ZZ,DUM,DVM,DX,DY
+ USE CONST, ONLY : GRAV
+ USE CONTROL
+ USE LIMS
+ IMPLICIT NONE
+
+!
+! X COMPONENT OF BAROCLINIC PRESSURE GRADIENT
+!
+!      DO 300 J=2,JMM1
+!      DO 300 I=2,IMM1
+  DO J=JSLAT,JELAT
+  DO I=JSLON,JELON
+  DRHOX(I,J,1)=.5E0*GRAV*(-ZZ(1))*(DT(I,J)+DT(I-1,J))*(RHO(I,J,1)-RHO(I-1,J,1))
+  END DO
+  END DO
+      
+  DO K=2,KBM1
+!  DO 310 J=2,JMM1
+!  DO 310 I=2,IMM1
+  DO J=JSLAT,JELAT
+  DO I=JSLON,JELON
+  DRHOX(I,J,K)=DRHOX(I,J,K-1)                                                     &
+               +GRAV*.25E0*(ZZ(K-1)-ZZ(K)) *(DT(I,J)+DT(I-1,J))                   &
+              *(RHO(I,J,K)-RHO(I-1,J,K)+RHO(I,J,K-1)-RHO(I-1,J,K-1))              &
+              +GRAV*.25E0*(ZZ(K-1)+ZZ(K))*(DT(I,J)-DT(I-1,J))                     &
+              *(RHO(I,J,K)+RHO(I-1,J,K)-RHO(I,J,K-1)-RHO(I-1,J,K-1))
+  END DO
+  END DO
+  END DO
+!
+  DO K=1,KBM1
+!  DO 360 J=2,JMM1
+!  DO 360 I=2,IMM1
+  DO J=JSLAT,JELAT
+  DO I=JSLON,JELON
+  DRHOX(I,J,K)=.25E0*(DT(I,J)+DT(I-1,J))*DRHOX(I,J,K)*DUM(I,J)*(DY(I,J)+DY(I-1,J))
+  END DO
+  END DO
+  END DO
+!
+! Y COMPONENT OF BAROCLINIC PRESSURE GRADIENT
+!
+! DO 500 J=2,JMM1
+! DO 500 I=2,IMM1
+ DO J=JSLAT,JELAT
+ DO I=JSLON,JELON
+ DRHOY(I,J,1)=.5E0*GRAV*(-ZZ(1))*(DT(I,J)+DT(I,J-1))*(RHO(I,J,1)-RHO(I,J-1,1))
+ END DO
+ END DO
+     
+ DO K=2,KBM1
+! DO 510 J=2,JMM1
+! DO 510 I=2,IMM1
+ DO J=JSLAT,JELAT
+ DO I=JSLON,JELON
+ DRHOY(I,J,K)=DRHOY(I,J,K-1)                                                      &
+             +GRAV*.25E0*(ZZ(K-1)-ZZ(K))*(DT(I,J)+DT(I,J-1))                      &
+             *(RHO(I,J,K)-RHO(I,J-1,K)+RHO(I,J,K-1)-RHO(I,J-1,K-1))               &
+             +GRAV*.25E0*(ZZ(K-1)+ZZ(K))*(DT(I,J)-DT(I,J-1))                      &
+             *(RHO(I,J,K)+RHO(I,J-1,K)-RHO(I,J,K-1)-RHO(I,J-1,K-1))
+ END DO
+ END DO
+ END DO
+!
+ DO K=1,KBM1
+! DO 560 J=2,JMM1
+! DO 560 I=2,IMM1
+ DO J=JSLAT,JELAT
+ DO I=JSLON,JELON
+ DRHOY(I,J,K)=.25E0*(DT(I,J)+DT(I,J-1))*DRHOY(I,J,K)*DVM(I,J)*(DX(I,J)+DX(I,J-1))
+ END DO
+ END DO
+ END DO
+!
+ DO K=1,KB
+! DO 561 J=2,JMM1
+! DO 561 I=2,IMM1
+ DO J=JSLAT,JELAT
+ DO I=JSLON,JELON
+ DRHOX(I,J,K)=FACT*DRHOX(I,J,K)
+ DRHOY(I,J,K)=FACT*DRHOY(I,J,K)
+ END DO
+ END DO
+ END DO
+!
+ DO K=1,KB
+! DO 571 J=1,JM
+! DO 571 I=1,IM
+ DO J=ISLAT,IELAT
+ DO I=ISLON,IELON 
+ RHO(I,J,K)=RHO(I,J,K)+RMEAN(I,J,K)
+ END DO
+ END DO
+ END DO
+!
+ RETURN
+ END

@@ -1,0 +1,120 @@
+ SUBROUTINE SET_TOPO 
+ USE NcFileMod
+ USE CONTROL
+ USE LIMS
+ USE CONST, ONLY : LAND,PI,ERAD
+ USE ALL_VAR, ONLY : X,Y,H,FSM,ARU,ARV,DUM,DVM,COR,DX,DY,ART
+ USE PARALLEL_MOD
+ IMPLICIT NONE
+ INCLUDE 'netcdf.inc'
+
+ CHARACTER(LEN=200) FileName
+ REAL(kind_r4),PARAMETER ::  MinDepth = 5.0
+ REAL ::  TOPO_LAND = 1.E10 
+
+! FileName='../data/'//TRIM(ModelName)//'_topo.nc'
+! WRITE(FileName,'(a<len_trim(input)>,a8,a<len_trim(ModelName)>,a8)')trim(input),'initial/',trim(ModelName),'_topo.nc'
+ FileName=trim(input)//'initial/'//trim(ModelName)//'_topo.nc'
+
+ CALL Nc_Read(FileName,'lon',X)
+ CALL Nc_Read(FileName,'lat',Y)
+ CALL Nc_Read(FileName,'topo_h',H(ISLON:IELON,ISLAT:IELAT),I1=ISLON,J1=ISLAT,LAND=TOPO_LAND)
+
+ 
+
+ IF(ISLON==1)THEN
+ H(1,ISLAT:IELAT)=H(2,ISLAT:IELAT)
+ END IF
+
+ IF(IELON==IM)THEN
+ H(IM,ISLAT:IELAT)=H(IM-1,ISLAT:IELAT)
+ END IF
+
+ IF(ISLAT==1)THEN
+ H(ISLON:IELON,1)=H(ISLON:IELON,2)
+ END IF
+
+ IF(IELAT==JM)THEN
+ H(ISLON:IELON,JM)=H(ISLON:IELON,JM-1)
+ END IF
+ FSM=1.
+ DO J=ISLAT,IELAT
+ DO I=ISLON,IELON
+ !IF(ABS(H(I,J)-MinDepth)<0.01)H(I,J)=MinDepth
+ IF(H(I,J)-MinDepth<0.01)H(I,J)=MinDepth
+ IF(ABS(H(I,J)-TOPO_LAND)<0.000001)THEN
+ H(I,J)=1.
+ FSM(I,J)=0.
+ END IF
+ IF(H(I,J)>5500)H(I,J)=5500
+ END DO
+ END DO
+
+!! DO J=1,JM
+!! H(1,J)=H(2,J)
+!! H(IM,J)=H(IMM1,J)
+!! END DO
+!! DO I=1,IM
+!! H(I,1)=H(I,2)
+!! H(I,JM)=H(I,JMM1)
+!! END DO
+ CALL COMM_2D(H,3,3)
+ CALL COMM_2D(FSM,3,3)
+         
+ DO J=ISLAT,IELAT
+ DO I=ISLON,IELON
+ COR(I,J)=Y(J)*PI/180.
+ !DY(I,J) =ERAD*PI/180./24.
+ !DY(I,J) =6.371E6*PI/180./24.
+ !DY(I,J) =6.371E6*PI*GRID/180.
+ DY(I,J) =6.371E6*PI/(180.*IGRID)
+ DX(I,J) =DY(I,J)*COS(COR(I,J))
+ ART(i,j)=DX(i,j)*DY(i,j)
+ COR(I,J)=2*7.292E-5*SIN(COR(I,J))
+ END DO
+ END DO
+
+ CALL COMM_2D(COR,3,3)
+ CALL COMM_2D(DX,3,3)
+ CALL COMM_2D(DY,3,3)
+ CALL COMM_2D(ART,3,3)
+     
+ CALL DEPTH
+ 
+ DO J=JSLAT,IELAT
+ DO I=JSLON,IELON
+ ARU(I,J)=.25*(DX(I,J)+DX(I-1,J))*(DY(I,J)+DY(I-1,J))
+ ARV(I,J)=.25*(DX(I,J)+DX(I,J-1))*(DY(I,J)+DY(I,J-1))
+ END DO
+ END DO
+
+ IF(JSLON==2)THEN
+ DO J=ISLAT,IELAT
+ ARU(1,J)=ARU(2,J)
+ ARV(1,J)=ARV(2,J)
+ END DO
+ END IF     
+ 
+ IF(JSLAT==2)THEN
+ DO I=ISLON,IELON
+ ARU(I,1)=ARU(I,2)
+ ARV(I,1)=ARV(I,2)
+ END DO
+ END IF    
+
+ CALL COMM_2D(ARU,3,3)
+ CALL COMM_2D(ARV,3,3)
+ 
+ DUM=0
+ DVM=0     
+ DO J=JSLAT,IELAT
+ DO I=JSLON,IELON
+ DUM(I,J)=FSM(I,J)*FSM(I-1,J)                                 
+ DVM(I,J)=FSM(I,J)*FSM(I,J-1)    
+ ENDDO
+ ENDDO
+ 
+ CALL COMM_2D(DUM,3,3)
+ CALL COMM_2D(DVM,3,3)
+ RETURN
+ END

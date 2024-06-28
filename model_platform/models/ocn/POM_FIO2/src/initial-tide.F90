@@ -1,0 +1,65 @@
+ SUBROUTINE INITIAL_TIDE
+ USE LIMS
+ USE CONST
+ USE ALL_VAR
+ USE CONTROL
+ IMPLICIT NONE
+ CHARACTER*200 FileName
+ INTEGER L5
+!********************************************************************
+!	ADDING M2 COMPONENT TIDES!!!
+!********************************************************************
+ ALLOCATE(AMPE(NUMTIDE,JM),AMPW(NUMTIDE,JM),PHAE(NUMTIDE,JM),PHAW(NUMTIDE,JM))
+ ALLOCATE(AMPS(NUMTIDE,IM),AMPN(NUMTIDE,IM),PHAS(NUMTIDE,IM),PHAN(NUMTIDE,IM))
+ ALLOCATE(M2UVE(4,JM),M2UVW(4,JM),M2UVS(4,IM),M2UVN(4,IM))
+ ALLOCATE(OMG(NUMTIDE))
+ AMPE  = 0
+ AMPW  = 0
+ PHAE  = 0
+ PHAW  = 0
+ AMPS  = 0
+ AMPN  = 0
+ PHAS  = 0
+ PHAN  = 0
+ M2UVE = 0
+ M2UVW = 0
+ M2UVS = 0
+ M2UVN = 0
+ OMG   = 0
+ OMG(NUMTIDE)=28.98410424
+ FileName=trim(input)//'tide/m2.dat'
+ L5=1
+ OPEN(100,FILE=FILENAME,STATUS='OLD')
+ READ(100,*)
+ READ(100,*)
+ READ(100,*)AMPE(L5,:)
+ AMPW(L5,:)=0.E0
+ READ(100,*)
+ READ(100,*)AMPS(L5,:)
+ READ(100,*)
+ READ(100,*)AMPN(L5,:)
+
+ READ(100,*)
+ READ(100,*)
+ READ(100,*)PHAE(L5,:)
+ PHAW(L5,:)=0.E0
+ READ(100,*)
+ READ(100,*)PHAS(L5,:)
+ READ(100,*)
+ READ(100,*)PHAN(L5,:)
+ CLOSE(100)
+!
+ FileName=trim(input)//'tide/tideM2.dat'
+ OPEN(100,FILE=FILENAME,STATUS='OLD')
+ DO L5=1,4
+    READ(100,*)
+    READ(100,*)
+    READ(100,*)M2UVE(L5,:)
+    READ(100,*)
+    READ(100,*)M2UVS(L5,:)
+    READ(100,*)
+    READ(100,*)M2UVN(L5,:)
+ END DO
+ CLOSE(100)
+ RETURN
+ END
