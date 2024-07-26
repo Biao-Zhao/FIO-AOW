@@ -10,6 +10,13 @@
       USE PARALLEL_MOD_WAVE, ONLY: masnum_mpi_comm, COMM_DATA_2D
       USE CCPL_interface_mod                       !zhaobiao, c-coupler2
       implicit none
+!=======================================================================================================
+!                              Main program                                                            =
+!     This subroutine is the interface gropgram for coupling between MASNUM and C-Coupler  created by  =
+!     Dr. Biao Zhao                                                                                    =
+!                                                                                                      =
+!                                                                          Zhao Biao 2017.03.01        =
+!=======================================================================================================
       type, private :: masnum_state_var
       integer               :: comp_id
       integer               :: parent_comp_id
