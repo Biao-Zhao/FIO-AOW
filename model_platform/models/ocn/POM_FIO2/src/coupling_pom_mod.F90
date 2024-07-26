@@ -6,6 +6,13 @@
       use all_var
       use parallel_mod, ONLY: pom_mpi_comm
       implicit none
+!=======================================================================================================
+!                              Main program                                                            =
+!     This subroutine is the interface gropgram for coupling between POM and C-Coupler  created by     =
+!     Dr. Biao Zhao                                                                                    =
+!                                                                                                      =
+!                                                                          Zhao Biao 2017.07.11        =
+!=======================================================================================================
       type, private :: pom_state_var
       integer               :: comp_id
       integer               :: parent_comp_id
