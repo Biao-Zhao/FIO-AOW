@@ -18,7 +18,7 @@ For more details about the FIO-AOW, people could refer to the papers listed belo
    
 4. Wang, G., **Zhao, B.**, Qiao, F. et al. (2018). Rapid intensification of Super Typhoon Haiyan: the important role of a warm-core ocean eddy. Ocean Dynamics 68, 1649–1661, https://doi.org/10.1007/s10236-018-1217-x
 
-5. Li, S., **Zhao, B.**, Ma, S., Yin, X., Ji, D., Qiao, F., 2024. Effects of Sea Spray on Extreme Precipitation Forecasting: A case study in Beijing of China. Geophysical Research Letters, accepted (in press).   
+5. Li, S., **Zhao, B.**, Ma, S., Yin, X., Ji, D., Qiao, F., 2024. Effects of Sea Spray on Extreme Precipitation Forecasting: A case study in Beijing of China. Geophysical Research Letters, 51, e2024GL109923. https://doi.org/10.1029/2024GL109923
 
 6.	Sun, C., Liu, L., Li, R., Yu, X., Yu, H., **Zhao, B.**, Wang, G., Liu, J., Qiao, F., and Wang, B. (2021). Developing a common, flexible and efficient framework for weakly coupled ensemble data assimilation based on C-Coupler2.0, Geosci. Model Dev., 14, 2635-2657, https://doi.org/10.5194/gmd-14-2635-2021.
    
