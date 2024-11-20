@@ -6,8 +6,8 @@ The full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model which is develop
     <img src="https://github.com/Biao-Zhao/Biao-Zhao.github.io/blob/main/images/fio-aow.png" alt="FIO-AOW framework">
 </div>
 
-<div align="center" style="font-family: 'Microsoft YaHei'; font-size: 20px; font-weight: bold;">
-    <em>Figure: FIO-AOW framework</em>
+<div align="center" style="font-family: 'Microsoft YaHei'; font-size: 20px;">
+    **_Figure: FIO-AOW framework_**
 </div>
 
 FIO-AOW has been used to study the impacts of ocean surface waves on tropical cyclone. Currently, the following wave related physical processes have been considered in FIO-AOW, including
