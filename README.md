@@ -15,7 +15,13 @@ FIO-AOW has been used to study the impacts of ocean surface waves on tropical cy
 3. Non-breaking wave-induced vertical mixing
 4. Relative wind speed
 5. Rain-induced surface cooling
-
+   
+<div align="center">
+    <img src="https://github.com/Biao-Zhao/Biao-Zhao.github.io/blob/main/images/tc.png" alt="Atmosphere-Ocean-Wave shematic">
+</div>
+<div align="center" style="font-family: 'Microsoft YaHei'; font-size: 40px; font-weight: bold;">
+    <em>Atmosphere-Ocean-Wave interaction shematic</em>
+</div>
 
 For more details about the FIO-AOW, people could refer to the papers listed below:
 1. **Zhao, B.**, Wu, L., Wang, G., Zhang, J. A., et al., (2024). A numerical study of tropical cyclone and ocean responses to air-sea momentum flux at high winds. Journal of Geophysical Research: Oceans, 129(7), e2024JC020956, https://doi.org/10.1029/2024JC020956
