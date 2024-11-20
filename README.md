@@ -3,7 +3,7 @@ markdown
 The full name of FIO-AOW is Atmosphere-Ocean-Wave coupled model which is developed at the First Institute of Oceanography, Ministry of Natural Resources. It consists of atmosphere component [WRF](https://github.com/wrf-model/WRF)，ocean surface wave component MASNUM and ocean circulation components [POM](http://www.ccpo.odu.edu/POMWEB/)&[ROMS](https://github.com/myroms/roms). These three components are integrated together through a community [C-Coupler](https://github.com/C-Coupler-Group/c-coupler-lib). It should be noted that all the components of FIO-AOW are open-source except MASNUM. The copyright for MASNUM is owned by FIO, and its use requires permission and approval. In FIO-AOW, the POM and MASNUM were speeded up through MPI technique by Dr. Guansuo Wang (wang et al., 2010).
 
 ![FIO-AOW framework](https://github.com/Biao-Zhao/Biao-Zhao.github.io/blob/main/images/fio-aow.png)
-<div align="center" style="font-family: 'Microsoft YaHei'; font-size: 20px;">
+<div align="center" style="font-family: 'Microsoft YaHei'; font-size: 30px; font-weight: bold;">
     <em>Figure: FIO-AOW framework</em>
 </div>
 
