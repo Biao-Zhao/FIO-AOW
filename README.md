@@ -20,7 +20,7 @@ FIO-AOW has been used to study the impacts of ocean surface waves and wave-coupl
     <img src="https://github.com/Biao-Zhao/Biao-Zhao.github.io/blob/main/images/tc.png" alt="Atmosphere-Ocean-Wave shematic">
 </div>
 <div align="center" style="font-family: 'Microsoft YaHei'; font-size: 40px; font-weight: bold;">
-    <em>Atmosphere-Ocean-Wave interaction shematic</em>
+    <em>Shematic of Atmosphere-Ocean-Wave interaction system </em>
 </div>
 <br><br>
 
