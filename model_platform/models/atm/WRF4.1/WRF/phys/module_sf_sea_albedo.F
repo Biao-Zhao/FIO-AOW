@@ -3,7 +3,25 @@ real, parameter, private   :: PI=3.1415927
 real, parameter, private   :: rad2deg=180.0/PI
 real, parameter, private   :: deg2rad=PI/180.0
 contains
-      
+
+
+!=======================================================================================================
+!                              Broad band sea surface albedo                                           =
+!     This subroutine is used to substitute the constant sea surface albedo in WRF by Huang (2019)     =
+!     and payne (2018)                                                                                 =
+!                                                                                                      =
+!                                                                                                      =
+!                                                             added by Dr. Zhao Biao 2019.05.11        =
+!     References:                                                                                      =
+!     Payne, R. E. (1972). Albedo of the sea surface. Journal of the Atmospheric Sciences, 29(5),      =
+!     959–970. https://doi.org/10.1175/1520-0469(1972)029<0959:AOTSS>2.0.CO;2                          =
+!                                                                                                      =
+!     Huang, C. J., Qiao, F., Chen, S., Xue, Y., & Guo, J. (2019). Observation and parameterization    =
+!     of broadband sea surface albedo. Journal of Geophysical Research: Oceans, 124, 4480–4491.        =
+!     https://doi.org/10.1029/2018JC014444                                                             =
+! =======================================================================================================    
+
+
 subroutine albedo_huang(coszen,tra,u10,v10,t2,q2,psfc,hwave,albedo)
 implicit none
 real,   intent(in)    :: coszen,tra
