@@ -12,7 +12,7 @@
       implicit none
 !=======================================================================================================
 !                              Main program                                                            =
-!     This subroutine is the interface gropgram for coupling between MASNUM and C-Coupler  created by  =
+!     This subroutine is the interface program for coupling between MASNUM and C-Coupler  created by  =
 !     Dr. Biao Zhao                                                                                    =
 !                                                                                                      =
 !                                                                          Zhao Biao 2017.03.01        =
