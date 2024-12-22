@@ -66,6 +66,14 @@ MODULE coupling_roms_mod
       logical,              public :: ocean_log
       contains
 !
+!=======================================================================================================
+!                              Coupling Interface                                                      =
+!     This subroutine is the interface gropgram for coupling between ROMS and C-Coupler  created by    =
+!     Dr. Biao Zhao                                                                                    =
+!                                                                                                      =
+!                                                                          Zhao Biao 2018.05.06        =
+!=======================================================================================================
+
       SUBROUTINE register_roms_frame_coupling_configuration
       implicit none
       integer             :: parent_comp_id
