@@ -7,7 +7,7 @@
       use parallel_mod, ONLY: pom_mpi_comm
       implicit none
 !=======================================================================================================
-!                              Main program                                                            =
+!                              Coupling Interface                                                      =
 !     This subroutine is the interface gropgram for coupling between POM and C-Coupler  created by     =
 !     Dr. Biao Zhao                                                                                    =
 !                                                                                                      =
