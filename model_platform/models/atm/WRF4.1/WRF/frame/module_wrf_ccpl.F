@@ -56,7 +56,13 @@ end type wrf_state_var
    character(len=512),  public    :: log_file_name
    logical,             public    :: atm_log
 contains 
-
+!=======================================================================================================
+!                              Coupling Interface                                                      =
+!     This subroutine is the interface gropgram for coupling between WRF and C-Coupler  created by     =
+!     Dr. Biao Zhao                                                                                    =
+!                                                                                                      =
+!                                                                          Zhao Biao 2016.12.18        =
+!=======================================================================================================
 SUBROUTINE register_wrf_frame_coupling_configuration
 implicit none
 integer             :: parent_comp_id
