@@ -299,6 +299,7 @@ CONTAINS
                      isftcflx, iz0tlnd,scm_force_flux,                            &
                      ustm,ck,cka,cd,cda                            )
 !-------------------------------------------------------------------
+   USE module_sf_seaspray
       IMPLICIT NONE
 !-------------------------------------------------------------------
       REAL,     PARAMETER     ::        XKA=2.4E-5
@@ -1079,6 +1080,55 @@ CONTAINS
         ENDIF                                                                    
   360 CONTINUE                                                                   
 
+!=========================== spray heat flux added by zhaobiao =============
+IF (sea_spray .EQ. 1) THEN
+      DO I=its,ite
+          IF((XLAND(I)-1.5).GE.0 .AND. LAKEMASK(I).NE.1)THEN
+            WSPD10=SQRT(U10(I)*U10(I)+V10(I)*V10(I))
+            TS=TSK(I)-273.15
+            IF(TS.GE.40.0)THEN
+              TS=40.0
+            ELSE IF (TS.LE.-45.0)THEN
+              TS=-45.0
+            ENDIF
+            TR=T2(I)-273.15
+            IF(TR.GE.40.0)THEN
+              TR=40.0
+            ELSE IF (TR.LE.-45.0)THEN
+              TR=-45.0
+            ENDIF
+            QR=Q2(I)/(1.0+Q2(I)) !convert mixing ratio to specific humidity
+            PS=PSFCPA(I)/100
+            SH=HWAVE(I)
+            IF((SSS(I)-40).GE.0)THEN
+              SALT=40.0
+            ELSE IF (SSS(I).LE.1)THEN
+              SALT=1
+            ELSE
+              SALT=SSS(I)
+            ENDIF
+            USTAR=UST(I)
+            Z0=ZNT(I)
+            LENGTH=1.0/RMOL(I)
+            ref_ht=ZA(I)
+            ! FLUX_SPRAY(UR,TS,TR,H13,QR,P,S,USTAR,Z0,L,TAU_SP,hs_sp,hl_sp)
+            CALL FLUX_SPRAY(WSPD10,TS,TR,SH,QR,PS,SALT,USTAR,Z0,LENGTH,ref_ht,TAU_SP(I),HS_SP(I),HL_SP(I),QFX_SP(I))
+          ELSE
+            TAU_SP(I)=0.0
+            HS_SP(I) =0.0
+            HL_SP(I) =0.0
+            QFX_SP(I)=0.0
+          ENDIF
+      ENDDO
+ELSE
+      DO I=its,ite
+           TAU_SP(I)=0.0
+           HS_SP(I) =0.0
+           HL_SP(I) =0.0
+           QFX_SP(I)=0.0
+      ENDDO
+END IF
+!=============================================================================
 
 
 !                                                                                

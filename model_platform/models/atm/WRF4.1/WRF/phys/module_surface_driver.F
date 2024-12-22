@@ -6,9 +6,7 @@ CONTAINS
    SUBROUTINE surface_driver(                                         &
      &           HYDRO_dt,sfcheadrt,INFXSRT,soldrain,                 &
      &           acgrdflx,achfx,aclhf                                 &
-     &          ,acsnom,acsnow,snowfallac,akhs,akms,albedo,transmt    &
-     &          ,albedosea,sea_albedo                                 &
-     &          ,br,canwat                                            &
+     &          ,acsnom,acsnow,snowfallac,akhs,akms,albedo,br,canwat  &
      &          ,chklowq,dt,dx,dz8w,dzs,glw                           &
      &          ,grdflx,gsw,swdown,gz1oz0,hfx,ht,ifsnow,isfflx        &
      &          ,hwave,lwavep,pwave                                   &
@@ -386,7 +384,6 @@ CONTAINS
    USE module_sf_tmnupdate
    USE module_sf_lake
    USE module_cpl, ONLY : coupler_on, cpl_rcv
-   use sea_surface_albedo
 !
 !  This driver calls subroutines for the surface parameterizations.
 !
@@ -719,9 +716,6 @@ CONTAINS
    REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(INOUT)::   AKHS
    REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(INOUT)::   AKMS
    REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(INOUT)::   ALBEDO
-   REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(OUT)  ::  ALBEDOSEA
-   REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(IN)   ::   TRANSMT
-   INTEGER,                                          INTENT(IN   ) ::  SEA_ALBEDO
    REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(INOUT)::   CANWAT
 
    REAL, DIMENSION( ims:ime, jms:jme ) , INTENT(INOUT)::   GRDFLX
@@ -1607,6 +1601,7 @@ CONTAINS
 
           SELECT CASE ( SEAICE_ALBEDO_OPT )
           CASE ( 0, 1 )
+
               ALBEDO(I,J) = SEAICE_ALBEDO_DEFAULT * XICE(I,J) + 0.08 * ( 1.0-XICE(I,J) )
               ALBBCK(I,J) = SEAICE_ALBEDO_DEFAULT
 
@@ -1615,6 +1610,7 @@ CONTAINS
               IF ( ALBSI(I,J) < -1.E6 ) THEN
                   call wrf_error_fatal("Field ALBSI not found in input.  Field ALBSI is required if SEAICE_ALBEDO_OPT=2")
               ENDIF
+
               ALBEDO(I,J) = ALBSI(I,J) * XICE(I,J) + 0.08 * ( 1.0-XICE(I,J) )
               ALBBCK(I,J) = ALBSI(I,J)
 
@@ -1634,7 +1630,7 @@ CONTAINS
             TSK(i,j)   =SST(i,j)
             TSLB(i,1,j)=SST(i,j)
            ENDIF
-         ENDIF
+          ENDIF
      ELSE
 #if (EM_CORE==1)
 !       if(lakeflag.eq.1) then
@@ -1657,7 +1653,7 @@ CONTAINS
             TSK(i,j)   =SST(i,j)
             TSLB(i,1,j)=SST(i,j)
            ENDIF
-         ENDIF
+          ENDIF
 #else
        IF(XLAND(i,j) .GT. 1.5.and.ht(i,j).lt.lake_min_elev) then
            IF ( SST(i,j) .LT. 350. .and. SST(i,j) .GT. 250.) THEN
@@ -1688,32 +1684,6 @@ CONTAINS
             SH2O(I,NK,J) = 1.0
           ENDDO
         ENDIF
-        
-        IF(XLAND(i,j) .GT. 1.5.AND.LAKEMASK(I,J).NE.1) THEN
-          IF(COSZEN(i,j).GT.1.E-9)THEN
-             IF (SEA_ALBEDO .EQ. 1) THEN
-                CALL ALBEDO_HUANG(COSZEN(i,j),TRANSMT(i,j),U10(i,j),V10(i,j), &  !HuangCJ update albedo use albedo sea
-                                  T2(i,j),Q2(i,j),PSFC(i,j),HWAVE(i,j),       &
-                                  ALBEDOSEA(i,j))
-                ALBEDO(i,j)=ALBEDOSEA(i,j)
-             ELSE IF(SEA_ALBEDO .EQ. 2) THEN
-                CALL ALBEDO_PAYNE(COSZEN(i,j),TRANSMT(i,j),ALBEDOSEA(i,j))       !Payne update albedo use albedosea
-                ALBEDO(i,j)=ALBEDOSEA(i,j)
-             ELSE IF (SEA_ALBEDO .EQ. 0) THEN
-                ALBEDOSEA(i,j)=0     
-                ALBEDO(i,j)=0.08                                                 !Default albedo is 0.08, not update
-             ELSE
-                write(message,*) 'used wrong sea_albedo in namelist.input, please check'
-                CALL wrf_error_fatal(message)
-             END IF
-          ELSE   
-             ALBEDOSEA(i,j)=0.0
-             ALBEDO(i,j)=0.0
-          END IF
-        ELSE
-          ALBEDOSEA(i,j)=0.0
-        END IF
-        
 
         XICE_save(I,J) = XICEM(I,J)
         XICEM(i,j) = XICE(i,j)
