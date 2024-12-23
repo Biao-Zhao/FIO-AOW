@@ -3,7 +3,7 @@ MODULE coupling_roms_mod
 
 !=======================================================================================================
 !                              Coupling Interface                                                      =
-!     This subroutine is the interface gropgram for coupling between ROMS and C-Coupler  created by    =
+!     This subroutine is the interface program for coupling between ROMS and C-Coupler  created by    =
 !     Dr. Biao Zhao                                                                                    =
 !                                                                                                      =
 !                                                                          Biao Zhao 2018.05.06        =
