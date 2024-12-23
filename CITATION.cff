@@ -1,0 +1,10 @@
+cff-version: 1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: Zhao
+  given-names: Biao
+title: FIO-AOW
+version:V1.0
+date-released: 2024-12-23
+doi: 10.5281/zenodo.14546846
+url: https://github.com/Biao-Zhao/FIO-AOW
