@@ -11,7 +11,7 @@
 !     This subroutine is the interface gropgram for coupling between POM and C-Coupler  created by     =
 !     Dr. Biao Zhao                                                                                    =
 !                                                                                                      =
-!                                                                          Zhao Biao 2017.07.11        =
+!                                                                          Biao Zhao 2017.07.11        =
 !=======================================================================================================
       type, private :: pom_state_var
       integer               :: comp_id
