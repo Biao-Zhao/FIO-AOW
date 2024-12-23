@@ -1,5 +1,14 @@
 #include "cppdefs.h"
 MODULE coupling_roms_mod
+
+!=======================================================================================================
+!                              Coupling Interface                                                      =
+!     This subroutine is the interface gropgram for coupling between ROMS and C-Coupler  created by    =
+!     Dr. Biao Zhao                                                                                    =
+!                                                                                                      =
+!                                                                          Biao Zhao 2018.05.06        =
+!=======================================================================================================
+
       USE CCPL_interface_mod                       
       USE mod_iounits
       USE mod_parallel, ONLY: OCN_COMM_WORLD,Master,MyRank
@@ -66,13 +75,6 @@ MODULE coupling_roms_mod
       logical,              public :: ocean_log
       contains
 !
-!=======================================================================================================
-!                              Coupling Interface                                                      =
-!     This subroutine is the interface gropgram for coupling between ROMS and C-Coupler  created by    =
-!     Dr. Biao Zhao                                                                                    =
-!                                                                                                      =
-!                                                                          Zhao Biao 2018.05.06        =
-!=======================================================================================================
 
       SUBROUTINE register_roms_frame_coupling_configuration
       implicit none
