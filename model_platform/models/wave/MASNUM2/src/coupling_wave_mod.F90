@@ -15,7 +15,7 @@
 !     This subroutine is the interface program for coupling between MASNUM and C-Coupler  created by  =
 !     Dr. Biao Zhao                                                                                    =
 !                                                                                                      =
-!                                                                          Zhao Biao 2017.03.01        =
+!                                                                          Biao Zhao 2017.03.01        =
 !=======================================================================================================
       type, private :: masnum_state_var
       integer               :: comp_id
