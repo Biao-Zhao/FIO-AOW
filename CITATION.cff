@@ -4,7 +4,7 @@ authors:
 - family-names: "Zhao"
   given-names: "Biao"
 title: "FIO-AOW"
-version:V1.0
+version: V1.0
 date-released: 2024-12-23
 doi: 10.5281/zenodo.14546846
 url: "https://github.com/Biao-Zhao/FIO-AOW"
