@@ -14,31 +14,24 @@ CONTAINS
    SUBROUTINE SFCLAY(U3D,V3D,T3D,QV3D,P3D,dz8w,                    &
                      CP,G,ROVCP,R,XLV,PSFC,CHS,CHS2,CQS2,CPM,      &
                      ZNT,UST,PBLH,MAVAIL,ZOL,MOL,REGIME,PSIM,PSIH, &
-                     FM,FH,LAKEMASK,                               &
+                     FM,FH,                                        &
                      XLAND,HFX,QFX,LH,TSK,FLHC,FLQC,QGH,QSFC,RMOL, &
                      U10,V10,TH2,T2,Q2,                            &
                      GZ1OZ0,WSPD,BR,ISFFLX,DX,                     &
                      SVP1,SVP2,SVP3,SVPT0,EP1,EP2,                 &
                      KARMAN,EOMEG,STBOLT,                          &
-                     P1000mb,SSS,SEA_SPRAY,                       &
+                     P1000mb,SSS,SEA_SPRAY,                        &
                      HWAVE,LWAVEP,PWAVE,                           &
                      RHOA,WHITECAP,BREAKRATE,                      &
                      TAU_IN,USTOKES,VSTOKES,UORB,VORB,             &
                      TAU_SP,HS_SP,HL_SP,                           &
-                     QFX_SP,                                       &
+                     QFX_SP,                                       &   
                      ids,ide, jds,jde, kds,kde,                    &
                      ims,ime, jms,jme, kms,kme,                    &
                      its,ite, jts,jte, kts,kte,                    &
-                     ustm,ck,cka,cd,cda,                           &
-                     isftcflx,iz0tlnd,scm_force_flux)
+                     ustm,ck,cka,cd,cda,isftcflx,iz0tlnd,scm_force_flux    )
 !-------------------------------------------------------------------
       IMPLICIT NONE
-!-------------------------------------------------------------------
-!   Changes in V3.7 over water surfaces: 
-!          1. for ZNT/Cd, replacing constant OZO with 0.11*1.5E-5/UST(I)
-!             the COARE 3.5 (Edson et al. 2013) formulation is also available
-!          2. for VCONV, reducing magnitude by half
-!          3. for Ck, replacing Carlson-Boland with COARE 3
 !-------------------------------------------------------------------
 !-- U3D         3D u-velocity interpolated to theta points (m/s)
 !-- V3D         3D v-velocity interpolated to theta points (m/s)
@@ -128,7 +121,7 @@ CONTAINS
       REAL,     INTENT(IN )   ::        SVP1,SVP2,SVP3,SVPT0
       REAL,     INTENT(IN )   ::        EP1,EP2,KARMAN,EOMEG,STBOLT
       REAL,     INTENT(IN )   ::        P1000mb
-!
+!    
       REAL,     DIMENSION( ims:ime, kms:kme, jms:jme )           , &
                 INTENT(IN   )   ::                           dz8w
                                         
@@ -139,7 +132,7 @@ CONTAINS
 !====================ADDED BY ZHAOBIAO
      INTEGER, INTENT(IN) :: SEA_SPRAY
       REAL,     DIMENSION( ims:ime, jms:jme )           , &
-                INTENT(IN)   ::                             HWAVE, &
+                INTENT(INOUT)   ::                          HWAVE, &
                                                            LWAVEP, &
                                                             PWAVE, &
                                                              RHOA, &
@@ -150,19 +143,25 @@ CONTAINS
                                                           VSTOKES, &
                                                              UORB, &
                                                              VORB, &
-                                                             SSS,  &
-                                                          LAKEMASK
-      REAL,     DIMENSION( ims:ime, jms:jme )           , &
-                INTENT(OUT)   ::                            TAU_SP, &
+                                                           TAU_SP, &
                                                             HS_SP, &
                                                             HL_SP, &
-                                                           QFX_SP
+                                                           QFX_SP, &
+                                                              SSS
 !=============================================================
+
       REAL,     DIMENSION( ims:ime, jms:jme )                    , &
                 INTENT(IN   )               ::             MAVAIL, &
                                                              PBLH, &
                                                             XLAND, &
                                                               TSK
+      REAL,     DIMENSION( ims:ime, jms:jme )                    , &
+                INTENT(OUT  )               ::                U10, &
+                                                              V10, &
+                                                              TH2, &
+                                                               T2, &
+                                                               Q2, &
+                                                             QSFC
 
 !
       REAL,     DIMENSION( ims:ime, jms:jme )                    , &
@@ -199,33 +198,16 @@ CONTAINS
       REAL,     DIMENSION( ims:ime, jms:jme )                    , &
                 INTENT(INOUT)   ::                                 &
                                                               QGH
-#if defined(mpas)
-      REAL,     INTENT(IN   )               ::   CP,G,ROVCP,R,XLV
 
-      REAL,     DIMENSION( ims:ime, jms:jme )                    , &
-                INTENT(IN   )               ::                 DX
-#else
+
+                                    
       REAL,     INTENT(IN   )               ::   CP,G,ROVCP,R,XLV,DX
-#endif
  
       REAL, OPTIONAL, DIMENSION( ims:ime, jms:jme )              , &
-                INTENT(OUT)     ::                  ck,cka,cd,cda
-
-      REAL, OPTIONAL, DIMENSION( ims:ime, jms:jme )              , &
-                INTENT(INOUT)   ::                           USTM
+                INTENT(OUT)     ::              ck,cka,cd,cda,ustm
 
       INTEGER,  OPTIONAL,  INTENT(IN )   ::     ISFTCFLX, IZ0TLND
       INTEGER,  OPTIONAL,  INTENT(IN )   ::     SCM_FORCE_FLUX
-
-      REAL,     DIMENSION( ims:ime, jms:jme )                    , &
-                INTENT(INOUT  )             ::               QSFC
-
-      REAL,     DIMENSION( ims:ime, jms:jme )                    , &
-                INTENT(OUT  )               ::                U10, &
-                                                              V10, &
-                                                              TH2, &
-                                                               T2, &
-                                                               Q2
 
 ! LOCAL VARS
 
@@ -237,22 +219,9 @@ CONTAINS
 
       REAL,     DIMENSION( its:ite ) ::                    dz8w1d
 
-      REAL,     DIMENSION( its:ite ) ::                      DX2D
-
       INTEGER ::  I,J
 
       DO J=jts,jte
-
-#if defined(mpas)
-        DO i=its,ite
-           DX2D(i)=DX(i,j)
-        ENDDO
-#else
-        DO i=its,ite
-           DX2D(i)=DX
-        ENDDo
-#endif
-
         DO i=its,ite
           dz8w1d(I) = dz8w(i,1,j)
         ENDDO
@@ -273,12 +242,12 @@ CONTAINS
                 CQS2(ims,j),CPM(ims,j),PBLH(ims,j), RMOL(ims,j),   &
                 ZNT(ims,j),UST(ims,j),MAVAIL(ims,j),ZOL(ims,j),    &
                 MOL(ims,j),REGIME(ims,j),PSIM(ims,j),PSIH(ims,j),  &
-                FM(ims,j),FH(ims,j),LAKEMASK(ims,j),               &
+                FM(ims,j),FH(ims,j),                               &
                 XLAND(ims,j),HFX(ims,j),QFX(ims,j),TSK(ims,j),     &
                 U10(ims,j),V10(ims,j),TH2(ims,j),T2(ims,j),        &
                 Q2(ims,j),FLHC(ims,j),FLQC(ims,j),QGH(ims,j),      &
                 QSFC(ims,j),LH(ims,j),                             &
-                GZ1OZ0(ims,j),WSPD(ims,j),BR(ims,j),ISFFLX,DX2D,   &
+                GZ1OZ0(ims,j),WSPD(ims,j),BR(ims,j),ISFFLX,DX,     &
                 SVP1,SVP2,SVP3,SVPT0,EP1,EP2,KARMAN,EOMEG,STBOLT,  &
                 P1000mb,SSS(ims,j),SEA_SPRAY,                      &
                 HWAVE(ims,j),LWAVEP(ims,j),PWAVE(ims,j),           &
@@ -306,7 +275,7 @@ CONTAINS
    SUBROUTINE SFCLAY1D(J,UX,VX,T1D,QV1D,P1D,dz8w1d,                &
                      CP,G,ROVCP,R,XLV,PSFCPA,CHS,CHS2,CQS2,CPM,PBLH,RMOL, &
                      ZNT,UST,MAVAIL,ZOL,MOL,REGIME,PSIM,PSIH,FM,FH,&
-                     LAKEMASK,XLAND,HFX,QFX,TSK,                   &
+                     XLAND,HFX,QFX,TSK,                            &
                      U10,V10,TH2,T2,Q2,FLHC,FLQC,QGH,              &
                      QSFC,LH,GZ1OZ0,WSPD,BR,ISFFLX,DX,             &
                      SVP1,SVP2,SVP3,SVPT0,EP1,EP2,                 &
@@ -338,11 +307,10 @@ CONTAINS
       REAL,     INTENT(IN )   ::        SVP1,SVP2,SVP3,SVPT0
       REAL,     INTENT(IN )   ::        EP1,EP2,KARMAN,EOMEG,STBOLT
       REAL,     INTENT(IN )   ::        P1000mb
-
 !====================ADDED BY ZHAOBIAO
       INTEGER, INTENT(IN) :: SEA_SPRAY
       REAL,     DIMENSION( ims:ime)                              , &
-                INTENT(IN)               ::                 HWAVE, &
+                INTENT(INOUT)               ::              HWAVE, &
                                                            LWAVEP, &
                                                             PWAVE, &
                                                              RHOA, &
@@ -353,13 +321,11 @@ CONTAINS
                                                           VSTOKES, &
                                                              UORB, &
                                                              VORB, &
-                                                             SSS,  &
-                                                         LAKEMASK  
-      REAL,     DIMENSION( ims:ime)                              , &
-                INTENT(OUT)               ::               TAU_SP, &
+                                                           TAU_SP, &
                                                             HS_SP, &
                                                             HL_SP, &
-                                                           QFX_SP
+                                                           QFX_SP, &
+                                                              SSS
 !=============================================================
 
 !
@@ -404,9 +370,7 @@ CONTAINS
                                                 TH2,T2,Q2,QSFC,LH
 
                                     
-      REAL,     INTENT(IN   )               ::   CP,G,ROVCP,R,XLV
-
-      REAL,     DIMENSION( its:ite ),  INTENT(IN   )   ::      DX
+      REAL,     INTENT(IN   )               ::   CP,G,ROVCP,R,XLV,DX
 
 ! MODULE-LOCAL VARIABLES, DEFINED IN SUBROUTINE SFCLAY
       REAL,     DIMENSION( its:ite ),  INTENT(IN   )   ::  dz8w1d
@@ -418,9 +382,7 @@ CONTAINS
                                                               T1D
  
       REAL, OPTIONAL, DIMENSION( ims:ime )                       , &
-                INTENT(OUT)     ::                  ck,cka,cd,cda
-      REAL, OPTIONAL, DIMENSION( ims:ime )                       , &
-                INTENT(INOUT)   ::                           USTM
+                INTENT(OUT)     ::              ck,cka,cd,cda,ustm
 
       INTEGER,  OPTIONAL,  INTENT(IN )   ::     ISFTCFLX, IZ0TLND
       INTEGER,  OPTIONAL,  INTENT(IN )   ::     SCM_FORCE_FLUX
@@ -458,9 +420,8 @@ CONTAINS
       REAL    ::  DTG,PSIX,DTTHX,PSIX10,PSIT,PSIT2,PSIQ,PSIQ2,PSIQ10
       REAL    ::  FLUXC,VSGD,Z0Q,VISC,RESTAR,CZIL,GZ0OZQ,GZ0OZT
       REAL    ::  ZW, ZN1, ZN2
-      REAL    ::  Z0T, CZC
 !====================  added by zhaobiao ===========================
-      REAL    :: WSPD10,TS,TR,PS,SH,QR,USTAR,Z0,ref_ht,LENGTH,SALT,CZO1_Jan,CZO2_Jan
+      REAL    ::  WSPD10,TS,TR,PS,SH,QR,USTAR,Z0,LENGTH,SALT,CZO1_Jan,CZO2_Jan
       character*256 :: message   !added by zhao biao
 !-------------------------------------------------------------------
       KL=kte
@@ -576,7 +537,7 @@ CONTAINS
         TSKV=THGB(I)*(1.+EP1*QSFC(I))                     
         DTHVDZ=(THVX(I)-TSKV)                                                 
 !  Convective velocity scale Vc and subgrid-scale velocity Vsg
-!  following Beljaars (1994, QJRMS) and Mahrt and Sun (1995, MWR)
+!  following Beljaars (1995, QJRMS) and Mahrt and Sun (1995, MWR)
 !                                ... HONG Aug. 2001
 !
 !       VCONV = 0.25*sqrt(g/tskv*pblh(i)*dthvm)
@@ -591,12 +552,10 @@ CONTAINS
         ELSE
           DTHVM=0.
         ENDIF
-!       VCONV = 2.*SQRT(DTHVM)
-! V3.7: reducing contribution in calm conditions
-        VCONV = SQRT(DTHVM)
+        VCONV = 2.*SQRT(DTHVM)
         endif
 ! Mahrt and Sun low-res correction
-        VSGD = 0.32 * (max(dx(i)/5000.-1.,0.))**.33
+        VSGD = 0.32 * (max(dx/5000.-1.,0.))**.33
         WSPD(I)=SQRT(WSPD(I)*WSPD(I)+VCONV*VCONV+vsgd*vsgd)
         WSPD(I)=AMAX1(WSPD(I),0.1)
         BR(I)=GOVRTH(I)*ZA(I)*DTHVDZ/(WSPD(I)*WSPD(I))                        
@@ -787,26 +746,6 @@ CONTAINS
         PSIQ2=ALOG(KARMAN*UST(I)*2./XKA+2./ZL)-PSIH2(I)                                   
 ! AHW: mods to compute ck, cd
         PSIQ10=ALOG(KARMAN*UST(I)*10./XKA+10./ZL)-PSIH10(I)
-
-! V3.7: using Fairall 2003 to compute z0q and z0t over water:
-!       adapted from module_sf_mynn.F
-        IF ( (XLAND(I)-1.5).GE.0. ) THEN
-              VISC=(1.32+0.009*(SCR3(I)-273.15))*1.E-5
-!             VISC=1.326e-5*(1. + 6.542e-3*SCR3(I) + 8.301e-6*SCR3(I)*SCR3(I) &
-!                 - 4.84e-9*SCR3(I)*SCR3(I)*SCR3(I))
-              RESTAR=UST(I)*ZNT(I)/VISC
-              Z0T = (5.5e-5)*(RESTAR**(-0.60))
-              Z0T = MIN(Z0T,1.0e-4)
-              Z0T = MAX(Z0T,2.0e-9)
-              Z0Q = Z0T
-
-              PSIQ=max(ALOG((ZA(I)+Z0Q)/Z0Q)-PSIH(I), 2.)
-              PSIT=max(ALOG((ZA(I)+Z0T)/Z0T)-PSIH(I), 2.)
-              PSIQ2=max(ALOG((2.+Z0Q)/Z0Q)-PSIH2(I), 2.)
-              PSIT2=max(ALOG((2.+Z0T)/Z0T)-PSIH2(I), 2.)
-              PSIQ10=max(ALOG((10.+Z0Q)/Z0Q)-PSIH10(I), 2.)
-        ENDIF
-
         IF ( PRESENT(ISFTCFLX) ) THEN
            IF ( ISFTCFLX.EQ.1 .AND. (XLAND(I)-1.5).GE.0. ) THEN
 ! v3.1
@@ -846,19 +785,14 @@ CONTAINS
            Cda(I)=(karman/psix)*(karman/psix)
         ENDIF
         IF ( PRESENT(IZ0TLND) ) THEN
-           IF ( IZ0TLND.GE.1 .AND. (XLAND(I)-1.5).LE.0. ) THEN
+           IF ( IZ0TLND.EQ.1 .AND. (XLAND(I)-1.5).LE.0. ) THEN
               ZL=ZNT(I)
 !             CZIL RELATED CHANGES FOR LAND
               VISC=(1.32+0.009*(SCR3(I)-273.15))*1.E-5
               RESTAR=UST(I)*ZL/VISC
-!             Modify CZIL according to Chen & Zhang, 2009 if iz0tlnd = 1
-!             If iz0tlnd = 2, use traditional value
+!             Modify CZIL according to Chen & Zhang, 2009
 
-              IF ( IZ0TLND.EQ.1 ) THEN
-                 CZIL = 10.0 ** ( -0.40 * ( ZL / 0.07 ) )
-              ELSE IF ( IZ0TLND.EQ.2 ) THEN
-                 CZIL = 0.1
-              END IF
+              CZIL = 10.0 ** ( -0.40 * ( ZL / 0.07 ) )
 
               PSIT=GZ1OZ0(I)-PSIH(I)+CZIL*KARMAN*SQRT(RESTAR)
               PSIQ=GZ1OZ0(I)-PSIH(I)+CZIL*KARMAN*SQRT(RESTAR)
@@ -915,19 +849,30 @@ CONTAINS
                                                                                  
       DO 360 I=its,ite
         IF((XLAND(I)-1.5).GE.0)THEN                                            
-!         ZNT(I)=CZO*UST(I)*UST(I)/G+OZO                                   
-! Since V3.7 (ref: EC Physics document for Cy36r1)
-          ZNT(I)=CZO*UST(I)*UST(I)/G+0.11*1.5E-5/UST(I)
+!          ZNT(I)=CZO*UST(I)*UST(I)/G+OZO                                   
+
 !          CZO1_Jan=TAU_IN(I)/(RHOA(I)*AMAX1(UST(I),0.01)*AMAX1(UST(I),0.01))
 !          CZO1_Jan=AMIN1(CZO1_Jan,0.99)
 !          CZO2_Jan=0.011/SQRT(1.0-CZO1_Jan)
 !          ZNT(I) = CZO2_Jan*UST(I)*UST(I)/G + OZO             !zhaobiao, charnock number denpend on sea state based on Janssen 2012
-! V3.9: Add limit as in isftcflx = 1,2
-          ZNT(I)=MIN(ZNT(I),2.85e-3)
-! COARE 3.5 (Edson et al. 2013)
-!         CZC = 0.0017*WSPD(I)-0.005
-!         CZC = min(CZC,0.028)
-!         ZNT(I)=CZC*UST(I)*UST(I)/G+0.11*1.5E-5/UST(I)
+!          write(message,*) 'caculate the Roughness length based on Janssen 2012'
+!          CALL wrf_message(message)  ! added by zhaobiao
+
+          CZO1_Jan=TAU_IN(I)/(RHOA(I)*AMAX1(UST(I),0.01)*AMAX1(UST(I),0.01))
+          CZO1_Jan=AMIN1(CZO1_Jan,0.99)
+          WSPD10=SQRT(U10(I)*U10(I)+V10(I)*V10(I))
+          if(WSPD10 .LE. 30)then
+            CZO2_Jan = 0.011
+          else if(WSPD10 .GT. 30 .and. WSPD10 .LE. 55)then
+            CZO2_Jan = exp(-0.005755*WSPD10*WSPD10+0.3225*WSPD10-8.956)
+          else if(WSPD10 .GT. 55)then
+            CZO2_Jan = 0.0002
+          else
+            WRITE( message,* ) 'wrong wind speed,zhaobiao', WSPD10
+            CALL wrf_error_fatal ( message )
+          end if
+          ZNT(I) = (CZO2_Jan/SQRT(1.0-CZO1_Jan))*UST(I)*UST(I)/G + 0.11*1.5E-5/UST(I)             !zhaobiao, ref EC Physics document for Cy46r1
+
 ! AHW: change roughness length, and hence the drag coefficients Ck and Cd
           IF ( PRESENT(ISFTCFLX) ) THEN
              IF ( ISFTCFLX.NE.0 ) THEN
@@ -966,7 +911,7 @@ CONTAINS
 !=========================== spray heat flux added by zhaobiao =============
   IF (sea_spray .EQ. 1) THEN
       DO I=its,ite
-          IF((XLAND(I)-1.5).GE.0 .AND. LAKEMASK(I).NE.1 )THEN
+          IF((XLAND(I)-1.5).GE.0)THEN
             WSPD10=SQRT(U10(I)*U10(I)+V10(I)*V10(I))
             TS=TSK(I)-273.15
             IF(TS.GE.40.0)THEN
@@ -981,7 +926,7 @@ CONTAINS
               TR=-45.0
             ENDIF
             QR=Q2(I)/(1.0+Q2(I)) !convert mixing ratio to specific humidity
-            PS=PSFCPA(I)/100
+            PS=PSFCPA(I)
             SH=HWAVE(I)
             IF((SSS(I)-40).GE.0)THEN
               SALT=40.0
@@ -993,9 +938,8 @@ CONTAINS
             USTAR=UST(I)
             Z0=ZNT(I)
             LENGTH=1.0/RMOL(I)
-            ref_ht=ZA(I)
           ! FLUX_SPRAY(UR,TS,TR,H13,QR,P,S,USTAR,Z0,L,TAU_SP,hs_sp,hl_sp)
-            CALL FLUX_SPRAY(WSPD10,TS,TR,SH,QR,PS,SALT,USTAR,Z0,LENGTH,ref_ht,TAU_SP(I),HS_SP(I),HL_SP(I),QFX_SP(I))
+            CALL FLUX_SPRAY(WSPD10,TS,TR,SH,QR,PS,SALT,USTAR,Z0,LENGTH,TAU_SP(I),HS_SP(I),HL_SP(I),QFX_SP(I))
           ELSE
             TAU_SP(I)=0.0
             HS_SP(I) =0.0
@@ -1010,11 +954,10 @@ CONTAINS
            HL_SP(I) =0.0
            QFX_SP(I)=0.0
       ENDDO
-  END IF
+  END IF 
       !WRITE(6,*)"WSPD10,TS,TR,Q2,PSFCPA,UST,ZNT,L,TAU_SP,HS_SP,HL_SP" 
       !WRITE(6,*)WSPD10,TS,TR,Q2(I-1),PSFCPA(I-1),UST(I-1),ZNT(I-1),1.0/RMOL(I-1),TAU_SP(I-1),HS_SP(I-1),HL_SP(I-1)        
-!============================================================================= 
-!                                                                                
+!=============================================================================                                                            
 !-----COMPUTE SURFACE MOIST FLUX:                                               
 !
 !     IF(IDRY.EQ.1)GOTO 390
@@ -1023,9 +966,9 @@ CONTAINS
      ENDIF
 !                                                                               
       DO 370 I=its,ite
-        QFX(I)=FLQC(I)*(QSFC(I)-QX(I))+QFX_SP(I)         ! added by zhaobiao                                     
+        QFX(I)=FLQC(I)*(QSFC(I)-QX(I))+QFX_SP(I)         ! added by zhaobiao                            
         QFX(I)=AMAX1(QFX(I),0.)                                            
-        LH(I)=XLV*QFX(I)
+        LH(I)=XLV*QFX(I)                   
   370 CONTINUE                                                                 
                                                                                 
 !-----COMPUTE SURFACE HEAT FLUX:                                                 
@@ -1033,13 +976,13 @@ CONTAINS
   390 CONTINUE                                                                 
       DO 400 I=its,ite
         IF(XLAND(I)-1.5.GT.0.)THEN                                           
-          HFX(I)=FLHC(I)*(THGB(I)-THX(I))+HS_SP(I)        !added by zhaobiao                             
-!         IF ( PRESENT(ISFTCFLX) ) THEN
-!            IF ( ISFTCFLX.NE.0 ) THEN
-! AHW: add dissipative heating term (commented out in 3.6.1)
-!               HFX(I)=HFX(I)+RHOX(I)*USTM(I)*USTM(I)*WSPDI(I)
-!            ENDIF
-!         ENDIF
+          HFX(I)=FLHC(I)*(THGB(I)-THX(I))+HS_SP(I)        !added by zhaobiao                         
+          IF ( PRESENT(ISFTCFLX) ) THEN
+             IF ( ISFTCFLX.NE.0 ) THEN
+! AHW: add dissipative heating term
+                HFX(I)=HFX(I)+RHOX(I)*USTM(I)*USTM(I)*WSPDI(I)
+             ENDIF
+          ENDIF
         ELSEIF(XLAND(I)-1.5.LT.0.)THEN                                       
           HFX(I)=FLHC(I)*(THGB(I)-THX(I))                                
           HFX(I)=AMAX1(HFX(I),-250.)                                       
