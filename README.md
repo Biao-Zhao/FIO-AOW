@@ -41,6 +41,8 @@ For further details on the **FIO-AOW**, readers may refer to the papers listed b
 
 5. Li, S., **Zhao, B.**, Ma, S., Yin, X., Ji, D., Qiao, F., 2024. Effects of Sea Spray on Extreme Precipitation Forecasting: A case study in Beijing of China. Geophysical Research Letters, 51, e2024GL109923. https://doi.org/10.1029/2024GL109923
 
-6.	Sun, C., Liu, L., Li, R., Yu, X., Yu, H., **Zhao, B.**, Wang, G., Liu, J., Qiao, F., and Wang, B. (2021). Developing a common, flexible and efficient framework for weakly coupled ensemble data assimilation based on C-Coupler2.0, Geosci. Model Dev., 14, 2635-2657, https://doi.org/10.5194/gmd-14-2635-2021.
+6. Li, S.†, Zhao, B.†, Shu, q., Ryabinin, V., Ji, D., Qiao, F., Tung, KK., 2026. Forecasts of strong tropical cyclones improved by incorporating ocean waves at air–sea interface. Communications Earth & Environment. https://doi.org/10.1038/s43247-026-03754-y. 
+
+7.	Sun, C., Liu, L., Li, R., Yu, X., Yu, H., **Zhao, B.**, Wang, G., Liu, J., Qiao, F., and Wang, B. (2021). Developing a common, flexible and efficient framework for weakly coupled ensemble data assimilation based on C-Coupler2.0, Geosci. Model Dev., 14, 2635-2657, https://doi.org/10.5194/gmd-14-2635-2021.
    
-7.	Wang, G., Qiao, F. & Xia, C. (2010). Parallelization of a coupled wave-circulation model and its application. Ocean Dynamics 60, 331–339, https://doi.org/10.1007/s10236-010-0274-6
+8.	Wang, G., Qiao, F. & Xia, C. (2010). Parallelization of a coupled wave-circulation model and its application. Ocean Dynamics 60, 331–339, https://doi.org/10.1007/s10236-010-0274-6
